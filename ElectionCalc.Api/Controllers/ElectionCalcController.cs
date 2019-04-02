@@ -24,16 +24,22 @@ namespace ElectionCalc.Api.Controllers
             };
             var mongoClient = new MongoClient(settings);
             var database = mongoClient.GetDatabase("election");
-            // ElectionCollection = database.GetCollection<ElectionModel>("Election");
+            ScoreElection = database.GetCollection<ScoreElection>("ScoreElection");
         }
 
-        [HtttGet]
-        public List<ScoreElection> MockData()
+        [HttpGet]
+        public List<ScoreElection> GetMockData()
         {
             var reader = new ReaderCsv();
             return reader.GetScoreElectionFromCSV();
         }
 
+        [HttpPost]
+        public void MockData()
+        {
+            var reader = new ReaderCsv();
+            var data = reader.GetScoreElectionFromCSV();
+            ScoreElection.InsertMany(data);
+        }
     }
-
 }
