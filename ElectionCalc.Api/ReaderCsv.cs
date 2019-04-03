@@ -40,4 +40,36 @@ public class ReaderCsv
         }
         return listScore;
     }
+
+    public List<ScoreElection> GetScoreElectionBatch6()
+    {
+        var pathFile = @"Batch6.csv";
+        var listScore = new List<ScoreElection>();
+        using (var reader = new StreamReader(pathFile))
+        {
+            while (!reader.EndOfStream)
+            {
+                var readFromCSV = reader.ReadLine();
+                var dataLine = readFromCSV.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                foreach (var line in dataLine)
+                {
+                    var data = line.Split(',').ToList();
+                    Int32.TryParse(data[3], out Int32 score);
+                    var Politician = new ScoreElection
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = data[0],
+                        Zone = data[1],
+                        Party = data[2],
+                        // FirstName = data[3],
+                        // LastName = data[4],
+                        Batch = "6",
+                        Score = score,
+                    };
+                    listScore.Add(Politician);
+                }
+            }
+        }
+        return listScore;
+    }
 }
