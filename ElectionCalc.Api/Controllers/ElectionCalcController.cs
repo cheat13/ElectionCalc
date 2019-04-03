@@ -182,7 +182,31 @@ namespace ElectionCalc.Api.Controllers
         [HttpPost]
         public void MockDataScoreParty()
         {
+            var listScore = ScoreElection.Find(it => true).ToList();
+            var listPartyName = listScore.GroupBy(it => it.Party).Select(it => it.Key).ToList();
 
+            var listScoreParty = new List<ScoreParty>();
+
+            for (int i = 0; i < 6; i++)
+            {
+                foreach (var name in listPartyName)
+                {
+                    var party = new ScoreParty
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Party = name,
+                        Batch = (i + 1).ToString()
+                    };
+                    listScoreParty.Add(party);
+                }
+            }
+
+            foreach (var party in listScoreParty)
+            {
+                party.Score = listScore.Where(it => it.Party == party.Party && it.Batch == party.Batch).Sum(it => it.Score);
+            }
+
+            ScoreParty.InsertMany(listScoreParty);
         }
     }
 }
