@@ -173,10 +173,58 @@ namespace ElectionCalc.Api.Controllers
             ScoreElection.DeleteMany(it => it.Batch == "6");
         }
 
-        [HttpPost]
-        public void MockDataScoreArea()
+        [HttpPost("{batch}")]
+        public void MockDataScoreArea(string batch)
         {
+            var dataScoreElection = ScoreElection.Find(it => it.Batch == batch).ToList();
+            var listScoreArea = new List<ScoreArea>();
+            var dataGroupByProvince = dataScoreElection.GroupBy(it => it.Province);
+            foreach (var dataGroupProvince in dataGroupByProvince)
+            {
+                var dataGroupByZone = dataGroupProvince.GroupBy(it => it.Zone);
+                foreach (var dataZone in dataGroupByZone)
+                {
+                    listScoreArea.Add(new ScoreArea
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataGroupProvince.Key,
+                        Zone = dataZone.Key,
+                        Batch = batch,
+                        Score = dataZone.Sum(it => it.Score)
+                    });
+                }
+            }
+            ScoreArea.InsertMany(listScoreArea);
+        }
 
+        [HttpGet("{batch}")]
+        public List<ScoreArea> GetScoreAreaWithBatch(string batch)
+        {
+            var dataScoreAreaWithBatch = ScoreArea.Find(it => it.Batch == batch).ToList();
+            return dataScoreAreaWithBatch;
+        }
+
+        [HttpGet("{batch}")]
+        public int GetCountScoreAreaWithBatch(string batch)
+        {
+            var countScoreAreaWithBatch = ScoreArea.Find(it => it.Batch == batch).ToList().Count();
+            return countScoreAreaWithBatch;
+        }
+
+        [HttpGet("{batch}")]
+        public int GetTotalScoreAreaWithBatch(string batch)
+        {
+            var dataScoreArea = ScoreArea.Find(it => it.Batch == batch).ToList();
+            var totalScore = dataScoreArea.Sum(it => it.Score);
+            return totalScore;
+        }
+
+        [HttpGet]
+        public int GetTotalScoreBatch6()
+        {
+            var reader = new ReaderCsv();
+            var listDataBatch6 = reader.GetScoreElectionBatch6();
+            return listDataBatch6.Sum(it => it.Score);
         }
 
         [HttpPost]
