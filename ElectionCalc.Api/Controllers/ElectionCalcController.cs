@@ -16,6 +16,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreElection> ScoreElection { get; set; }
         IMongoCollection<ScoreArea> ScoreArea { get; set; }
         IMongoCollection<ScoreParty> ScoreParty { get; set; }
+        IMongoCollection<ScoreParty> ScorePartyRatio { get; set; }
 
         public ElectionCalcController()
         {
@@ -29,232 +30,118 @@ namespace ElectionCalc.Api.Controllers
             ScoreElection = database.GetCollection<ScoreElection>("ScoreElection");
             ScoreArea = database.GetCollection<ScoreArea>("ScoreArea");
             ScoreParty = database.GetCollection<ScoreParty>("ScoreParty");
+            ScorePartyRatio = database.GetCollection<ScoreParty>("ScorePartyRatio");
         }
 
         [HttpGet]
-        public List<ScoreElection> GetData()
+        public List<ScoreElection> GetScoreElection()
         {
-            // var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6"
-            // && (it.Province == "ตรัง" || it.Province == "นราธิวาส" || it.Province == "ปัตตานี"
-            // || it.Province == "พัทลุง" || it.Province == "ยะลา" || it.Province == "สตูล")).ToList();
-
-            // var test = listScoreBatch6.GroupBy(it => it.Province).Sum(it => it.GroupBy(i => i.Zone).Count());
-
-            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6"
-            && (it.Province != "ตรัง" && it.Province != "นราธิวาส" && it.Province != "ปัตตานี"
-            && it.Province != "พัทลุง" && it.Province != "ยะลา" && it.Province != "สตูล")).ToList();
-
-            // var test = listScoreBatch6.Where(it => it.FirstName == null).GroupBy(it => it.Party).Select(it => it.Key).ToList();
-            var test = listScoreBatch6.Where(it => it.FirstName == null).ToList();
-
-            return test;
+            return ScoreElection.Find(it => true).ToList();
         }
 
         [HttpGet]
-        public List<ScoreElection> GetMockData()
+        public List<ScoreArea> GetScoreArea()
         {
-            var reader = new ReaderCsv();
-            return reader.GetScoreElectionFromCSV();
+            return ScoreArea.Find(it => true).ToList();
         }
 
         [HttpGet]
-        public List<ScoreElection> GetMockDataBatch6()
+        public List<ScoreParty> GetScoreParty()
         {
-            var reader = new ReaderCsv();
-            return reader.GetScoreElectionBatch6();
+            return ScoreParty.Find(it => true).ToList();
         }
 
         [HttpGet]
-        public List<int> CheckCountProvince()
+        public List<ScoreParty> GetScorePartyRatio()
         {
-            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6").ToList();
-            var listScore = ScoreElection.Find(it => true).ToList();
-            var countProBatch6 = listScoreBatch6.GroupBy(it => it.Province).Count();
-            var countPro = listScore.GroupBy(it => it.Province).Count();
-            var pro = new List<int> { countProBatch6, countPro };
-            return pro;
+            return ScorePartyRatio.Find(it => true).ToList();
         }
 
         [HttpGet]
-        public List<int> CheckCountZone()
+        public List<ShowScore> GetShowScoreParty()
         {
-            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6").ToList();
-            var listScore = ScoreElection.Find(it => true).ToList();
-
-            var countProBatch6 = listScoreBatch6.GroupBy(it => it.Province).ToList();
-            var countZoneBatch6 = countProBatch6.Sum(it => it.GroupBy(i => i.Zone).Count());
-
-            var countPro = listScore.GroupBy(it => it.Province);
-            var countZonePro = countPro.Sum(it => it.GroupBy(i => i.Zone).Count());
-
-            var zone = new List<int> { countZoneBatch6, countZonePro };
-            return zone;
-        }
-
-        [HttpGet]
-        public List<string> CheckProvince()
-        {
-            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6").ToList();
-            var listScore = ScoreElection.Find(it => it.Batch != "6").ToList();
-
-            var groupBatch6 = listScoreBatch6.GroupBy(it => it.Province);
-            var groupProRaw = listScore.GroupBy(it => it.Province);
-
-            var proBatch6 = groupBatch6.Select(it => it.Key).ToList();
-            var proRaw = groupProRaw.Select(it => it.Key).ToList();
-
-            var test = proBatch6.Where(it => !proRaw.Any(i => i == it)).ToList();
-
-            return test;
-        }
-
-        [HttpGet]
-        public List<int> CheckCountParty()
-        {
-            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6").ToList();
-            var listScore = ScoreElection.Find(it => true).ToList();
-
-            var countPartyBatch6 = listScoreBatch6.GroupBy(it => it.Party).Count();
-            var countParty = listScore.GroupBy(it => it.Party).Count();
-            var pro = new List<int> { countPartyBatch6, countParty };
-
-            return pro;
-        }
-
-        [HttpGet]
-        public List<string> CheckParty()
-        {
-            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6").ToList();
-            var listScore = ScoreElection.Find(it => true).ToList();
-
-            var groupBatch6 = listScoreBatch6.GroupBy(it => it.Party);
-            var groupProRaw = listScore.GroupBy(it => it.Party);
-
-            var partyBatch6 = groupBatch6.Select(it => it.Key).ToList();
-            var partyRaw = groupProRaw.Select(it => it.Key).ToList();
-
-            var test = partyRaw.Where(it => !partyBatch6.Any(i => i == it)).ToList();
-
-            return test;
-        }
-
-        [HttpPost]
-        public void MockData()
-        {
-            var reader = new ReaderCsv();
-            var data = reader.GetScoreElectionFromCSV();
-            ScoreElection.InsertMany(data);
-        }
-
-        [HttpPost]
-        public void MockDataBatch6()
-        {
-            var reader = new ReaderCsv();
-            var listScoreBatch6 = reader.GetScoreElectionBatch6();
-
-            var listScore = ScoreElection.Find(it => true).ToList();
-
-            foreach (var data in listScoreBatch6)
+            var scoreParty = ScoreParty.Find(it => true).ToList();
+            var showScoreParty = scoreParty.GroupBy(it => it.Party).Select(it => new ShowScore
             {
-                var politician = listScore.FirstOrDefault(i => i.Province == data.Province && i.Zone == data.Zone && i.Party == data.Party);
-                if (politician != null)
+                Id = Guid.NewGuid().ToString(),
+                Party = it.Key,
+                ScoreBatch1 = it.FirstOrDefault(i => i.Batch == "1").Score,
+                ScoreBatch2 = it.FirstOrDefault(i => i.Batch == "2").Score,
+                ScoreBatch3 = it.FirstOrDefault(i => i.Batch == "3").Score,
+                ScoreBatch4 = it.FirstOrDefault(i => i.Batch == "4").Score,
+                ScoreBatch5 = it.FirstOrDefault(i => i.Batch == "5").Score,
+                ScoreBatch6 = it.FirstOrDefault(i => i.Batch == "6").Score,
+            }).OrderByDescending(it => it.ScoreBatch6).ToList();
+
+            return showScoreParty;
+        }
+
+        [HttpGet]
+        public List<ShowScore> GetShowScorePartyRatio()
+        {
+            var scoreParty = ScorePartyRatio.Find(it => true).ToList();
+            var showScorePartyRatio = scoreParty.GroupBy(it => it.Party).Select(it => new ShowScore
+            {
+                Id = Guid.NewGuid().ToString(),
+                Party = it.Key,
+                ScoreBatch1 = it.FirstOrDefault(i => i.Batch == "1").Score,
+                ScoreBatch2 = it.FirstOrDefault(i => i.Batch == "2").Score,
+                ScoreBatch3 = it.FirstOrDefault(i => i.Batch == "3").Score,
+                ScoreBatch4 = it.FirstOrDefault(i => i.Batch == "4").Score,
+                ScoreBatch5 = it.FirstOrDefault(i => i.Batch == "5").Score,
+                ScoreBatch6 = it.FirstOrDefault(i => i.Batch == "6").Score,
+            }).OrderByDescending(it => it.ScoreBatch6).ToList();
+
+            return showScorePartyRatio;
+        }
+
+        [HttpGet("{batch1st}/{batch2nd}")]
+        public List<CompareScore> GetCompareScoreParty(string batch1st, string batch2nd)
+        {
+            var scoreParty = GetShowScoreParty();
+            var listCompareScoreParty = new List<CompareScore>();
+            var calc = new Calculate();
+            foreach (var party in scoreParty)
+            {
+                var scoreBatch1st = calc.getScoreByBatch(party, batch1st);
+                var scoreBatch2nd = calc.getScoreByBatch(party, batch2nd);
+                var compareScoreParty = new CompareScore()
                 {
-                    data.FirstName = politician.FirstName;
-                    data.LastName = politician.LastName;
-                }
+                    Id = party.Id,
+                    Party = party.Party,
+                    ScoreBatch1st = scoreBatch1st,
+                    ScoreBatch2nd = scoreBatch2nd,
+                    diff = scoreBatch2nd - scoreBatch1st,
+                    percentDiff = (scoreBatch1st == 0) ? 0 : (scoreBatch2nd - scoreBatch1st) / scoreBatch1st * 100,
+                };
+                listCompareScoreParty.Add(compareScoreParty);
             }
-
-            ScoreElection.InsertMany(listScoreBatch6);
+            return listCompareScoreParty;
         }
 
-        [HttpDelete]
-        public void DeleteBatch6()
+        [HttpGet("{batch1st}/{batch2nd}")]
+        public List<CompareScore> GetCompareScorePartyRatio(string batch1st, string batch2nd)
         {
-            ScoreElection.DeleteMany(it => it.Batch == "6");
-        }
-
-        [HttpPost("{batch}")]
-        public void MockDataScoreArea(string batch)
-        {
-            var dataScoreElection = ScoreElection.Find(it => it.Batch == batch).ToList();
-            var listScoreArea = new List<ScoreArea>();
-            var dataGroupByProvince = dataScoreElection.GroupBy(it => it.Province);
-            foreach (var dataGroupProvince in dataGroupByProvince)
+            var scorePartyRatio = GetShowScorePartyRatio();
+            var listCompareScorePartyRatio = new List<CompareScore>();
+            var calc = new Calculate();
+            foreach (var party in scorePartyRatio)
             {
-                var dataGroupByZone = dataGroupProvince.GroupBy(it => it.Zone);
-                foreach (var dataZone in dataGroupByZone)
+                var scoreBatch1st = calc.getScoreByBatch(party, batch1st);
+                var scoreBatch2nd = calc.getScoreByBatch(party, batch2nd);
+                var compareScoreParty = new CompareScore()
                 {
-                    listScoreArea.Add(new ScoreArea
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Province = dataGroupProvince.Key,
-                        Zone = dataZone.Key,
-                        Batch = batch,
-                        Score = dataZone.Sum(it => it.Score)
-                    });
-                }
+                    Id = party.Id,
+                    Party = party.Party,
+                    ScoreBatch1st = scoreBatch1st,
+                    ScoreBatch2nd = scoreBatch2nd,
+                    diff = scoreBatch2nd - scoreBatch1st,
+                    percentDiff = (scoreBatch1st == 0) ? 0 : (scoreBatch2nd - scoreBatch1st) / scoreBatch1st * 100,
+                };
+                listCompareScorePartyRatio.Add(compareScoreParty);
             }
-            ScoreArea.InsertMany(listScoreArea);
+            return listCompareScorePartyRatio;
         }
 
-        [HttpGet("{batch}")]
-        public List<ScoreArea> GetScoreAreaWithBatch(string batch)
-        {
-            var dataScoreAreaWithBatch = ScoreArea.Find(it => it.Batch == batch).ToList();
-            return dataScoreAreaWithBatch;
-        }
-
-        [HttpGet("{batch}")]
-        public int GetCountScoreAreaWithBatch(string batch)
-        {
-            var countScoreAreaWithBatch = ScoreArea.Find(it => it.Batch == batch).ToList().Count();
-            return countScoreAreaWithBatch;
-        }
-
-        [HttpGet("{batch}")]
-        public int GetTotalScoreAreaWithBatch(string batch)
-        {
-            var dataScoreArea = ScoreArea.Find(it => it.Batch == batch).ToList();
-            var totalScore = dataScoreArea.Sum(it => it.Score);
-            return totalScore;
-        }
-
-        [HttpGet]
-        public int GetTotalScoreBatch6()
-        {
-            var reader = new ReaderCsv();
-            var listDataBatch6 = reader.GetScoreElectionBatch6();
-            return listDataBatch6.Sum(it => it.Score);
-        }
-
-        [HttpPost]
-        public void MockDataScoreParty()
-        {
-            var listScore = ScoreElection.Find(it => true).ToList();
-            var listPartyName = listScore.GroupBy(it => it.Party).Select(it => it.Key).ToList();
-
-            var listScoreParty = new List<ScoreParty>();
-
-            for (int i = 0; i < 6; i++)
-            {
-                foreach (var name in listPartyName)
-                {
-                    var party = new ScoreParty
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Party = name,
-                        Batch = (i + 1).ToString()
-                    };
-                    listScoreParty.Add(party);
-                }
-            }
-
-            foreach (var party in listScoreParty)
-            {
-                party.Score = listScore.Where(it => it.Party == party.Party && it.Batch == party.Batch).Sum(it => it.Score);
-            }
-
-            ScoreParty.InsertMany(listScoreParty);
-        }
     }
 }
