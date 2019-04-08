@@ -143,5 +143,84 @@ namespace ElectionCalc.Api.Controllers
             return listCompareScorePartyRatio;
         }
 
+        [HttpGet]
+        public List<ShowScoreArea> GetShowScoreArea()
+        {
+            var dataScoreArea = ScoreArea.Find(it => true).ToList();
+            var dataGroupByProvince = dataScoreArea.GroupBy(it => it.Province).ToList();
+            var listShowScoreArea = new List<ShowScoreArea>();
+            foreach (var dataGroupProvince in dataGroupByProvince)
+            {
+                var dataGroupByZone = dataGroupProvince.GroupBy(it => it.Zone).ToList();
+                foreach (var dataGroupZone in dataGroupByZone)
+                {
+                    var scoreBatch1 = (dataGroupZone.Any(it => it.Batch == "1")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "1").Score : 0;
+                    var scoreBatch2 = (dataGroupZone.Any(it => it.Batch == "2")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "2").Score : 0;
+                    var scoreBatch3 = (dataGroupZone.Any(it => it.Batch == "3")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "3").Score : 0;
+                    var scoreBatch4 = (dataGroupZone.Any(it => it.Batch == "4")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "4").Score : 0;
+                    var scoreBatch5 = (dataGroupZone.Any(it => it.Batch == "5")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "5").Score : 0;
+                    var scoreBatch6 = (dataGroupZone.Any(it => it.Batch == "6")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "6").Score : 0;
+                    listShowScoreArea.Add(new ShowScoreArea
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataGroupProvince.Key,
+                        Zone = dataGroupZone.Key,
+                        ScoreBatch1 = scoreBatch1,
+                        ScoreBatch2 = scoreBatch2,
+                        ScoreBatch3 = scoreBatch3,
+                        ScoreBatch4 = scoreBatch4,
+                        ScoreBatch5 = scoreBatch5,
+                        ScoreBatch6 = scoreBatch6,
+                    });
+                }
+            }
+            return listShowScoreArea;
+        }
+
+        [HttpGet("{batch1st}/{batch2nd}")]
+        public List<CompareScoreArea> GetCompareScoreArea(string batch1st, string batch2nd)
+        {
+            var dataScoreArea = GetShowScoreArea();
+            var calc = new Calculate();
+            var listCompareScoreArea = new List<CompareScoreArea>();
+            foreach (var data in dataScoreArea)
+            {
+                var scoreBatch1 = calc.getScoreAreaByBatch(data, batch1st);
+                var scoreBatch2 = calc.getScoreAreaByBatch(data, batch2nd);
+                var diff = scoreBatch2 - scoreBatch1;
+                var percentDiff = (scoreBatch1 == 0) ? 0 : (scoreBatch2 - scoreBatch1) / scoreBatch1 * 100.0;
+                listCompareScoreArea.Add(new CompareScoreArea
+                {
+                    Id = data.Id,
+                    Province = data.Province,
+                    Zone = data.Zone,
+                    ScoreBatch1st = scoreBatch1,
+                    ScoreBatch2nd = scoreBatch2,
+                    Diff = diff,
+                    PercentDiff = percentDiff
+                });
+            }
+            return listCompareScoreArea;
+        }
+
+        [HttpGet("{batch}")]
+        public int GetCountBathcScoreArea(string batch)
+        {
+            var dataScoreAreaBatch = ScoreArea.Find(it => it.Batch == batch).ToList().Count();
+            return dataScoreAreaBatch;
+        }
+
+        [HttpGet("{batch}")]
+        public List<ScoreArea> GetBathcScoreArea(string batch)
+        {
+            var dataScoreAreaBatch = ScoreArea.Find(it => it.Batch == batch).ToList();
+            return dataScoreAreaBatch;
+        }
     }
 }
