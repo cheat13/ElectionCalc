@@ -72,4 +72,33 @@ public class ReaderCsv
         }
         return listScore;
     }
+
+    public List<DataCountVoter> MockDataCountVoter()
+    {
+        var filePath = @"DataScoreArea.csv";
+        var listCountVoter = new List<DataCountVoter>();
+        using (var reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                var readFromCSV = reader.ReadLine();
+                var listDataLine = readFromCSV.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                foreach (var dataLine in listDataLine)
+                {
+                    var dataCountVoter = dataLine.Split(',').ToList();
+                    Int32.TryParse(dataCountVoter[2], out Int32 countVoter);
+                    listCountVoter.Add(new DataCountVoter
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataCountVoter[0],
+                        Zone = dataCountVoter[1],
+                        CountVoter = countVoter,
+                        CountRealVoter = 0
+                    });
+                }
+            }
+        }
+        return listCountVoter;
+    }
+
 }

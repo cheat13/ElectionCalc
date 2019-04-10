@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using CsvHelper;
 using ElectionCalc.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
@@ -17,6 +19,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreArea> ScoreArea { get; set; }
         IMongoCollection<ScoreParty> ScoreParty { get; set; }
         IMongoCollection<ScoreParty> ScorePartyRatio { get; set; }
+        IMongoCollection<DataCountVoter> CountVoter { get; set; }
 
         public MockDataController()
         {
@@ -31,6 +34,7 @@ namespace ElectionCalc.Api.Controllers
             ScoreArea = database.GetCollection<ScoreArea>("ScoreArea");
             ScoreParty = database.GetCollection<ScoreParty>("ScoreParty");
             ScorePartyRatio = database.GetCollection<ScoreParty>("ScorePartyRatio");
+            CountVoter = database.GetCollection<DataCountVoter>("CountVoter");
         }
 
         #region 
@@ -280,6 +284,45 @@ namespace ElectionCalc.Api.Controllers
             }
 
             ScorePartyRatio.InsertMany(listScoreParty);
+        }
+
+        [HttpPost]
+        public void MockTaleCountVoter()
+        {
+            var readerCsv = new ReaderCsv();
+            var dataCountVoter = readerCsv.MockDataCountVoter();
+            var dataScoreArea = ScoreArea.Find(it => it.Batch == "6").ToList();
+            foreach (var data in dataCountVoter)
+            {
+                var countRealVote = dataScoreArea.Find(it => it.Province == data.Province && it.Zone == data.Zone).Score;
+                data.CountRealVoter = countRealVote;
+            }
+            CountVoter.InsertMany(dataCountVoter);
+        }
+
+        [HttpPost]
+        public void WriteCountVoterToCsv()
+        {
+            var filePath = @"CountVoter.csv";
+            var dataCountVoter = CountVoter.Find(it => true).ToList();
+            using (var textWriter = new StreamWriter(filePath))
+            {
+                var writer = new CsvWriter(textWriter);
+                writer.Configuration.Delimiter = ",";
+                writer.WriteRecords(dataCountVoter);
+            }
+        }
+
+        [HttpGet]
+        public int GetCountDataTableCountVoter()
+        {
+            return CountVoter.Find(it => true).ToList().Count();
+        }
+
+        [HttpGet]
+        public List<DataCountVoter> GetTableCountVoter()
+        {
+            return CountVoter.Find(it => true).ToList();
         }
     }
 }
