@@ -20,6 +20,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreParty> ScoreParty { get; set; }
         IMongoCollection<ScoreParty> ScorePartyRatio { get; set; }
         IMongoCollection<DataCountVoter> CountVoter { get; set; }
+        IMongoCollection<ScoreElectionV2> ScoreElectionV2 { get; set; }
 
         public MockDataController()
         {
@@ -35,6 +36,7 @@ namespace ElectionCalc.Api.Controllers
             ScoreParty = database.GetCollection<ScoreParty>("ScoreParty");
             ScorePartyRatio = database.GetCollection<ScoreParty>("ScorePartyRatio");
             CountVoter = database.GetCollection<DataCountVoter>("CountVoter");
+            ScoreElectionV2 = database.GetCollection<ScoreElectionV2>("ScoreElectionV2");
         }
 
         #region 
@@ -323,6 +325,53 @@ namespace ElectionCalc.Api.Controllers
         public List<DataCountVoter> GetTableCountVoter()
         {
             return CountVoter.Find(it => true).ToList();
+        }
+
+        [HttpGet]
+        public List<ScoreElection> GetDataBatch6()
+        {
+            return ScoreElection.Find(it => it.Batch == "6").ToList();
+        }
+
+        [HttpPost]
+        public void MockNewData()
+        {
+            var dataElection = ScoreElection.Find(it => it.Batch == "6").ToList();
+            var listGroupByProvince = dataElection.GroupBy(it => it.Province).ToList();
+            var listLateScoreElection2 = new List<ScoreElectionV2>();
+            foreach (var dataGroupProvince in listGroupByProvince)
+            {
+                var dataGroupByZone = dataGroupProvince.GroupBy(it => it.Zone).ToList();
+                foreach (var dataGroupZone in dataGroupByZone)
+                {
+                    var totalScoreZone = dataGroupZone.Sum(it => it.Score);
+                    var listLateScoreElection = dataGroupZone.Select(it => new ScoreElectionV2
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = it.Province,
+                        Zone = it.Zone,
+                        Party = it.Party,
+                        FirstName = it.FirstName,
+                        LastName = it.LastName,
+                        Score = it.Score,
+                        PercentScore = it.Score * 100.0 / totalScoreZone
+                    }).ToList();
+                    listLateScoreElection2.AddRange(listLateScoreElection);
+                }
+            }
+            ScoreElectionV2.InsertMany(listLateScoreElection2);
+        }
+
+        [HttpGet]
+        public int GetCountScoreElectionV2()
+        {
+            return ScoreElectionV2.Find(it => true).ToList().Count();
+        }
+
+        [HttpGet]
+        public List<ScoreElectionV2> GetScoreElectionV2()
+        {
+            return ScoreElectionV2.Find(it => true).ToList();
         }
     }
 }
