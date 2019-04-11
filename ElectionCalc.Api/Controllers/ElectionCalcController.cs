@@ -48,7 +48,7 @@ namespace ElectionCalc.Api.Controllers
         [HttpGet]
         public List<ScoreParty> GetScoreParty()
         {
-            return ScoreParty.Find(it => true).ToList();
+            return ScoreParty.Find(it => it.Batch == "8").ToList();
         }
 
         [HttpGet]
@@ -71,6 +71,9 @@ namespace ElectionCalc.Api.Controllers
                 ScoreBatch4 = it.FirstOrDefault(i => i.Batch == "4").Score,
                 ScoreBatch5 = it.FirstOrDefault(i => i.Batch == "5").Score,
                 ScoreBatch6 = it.FirstOrDefault(i => i.Batch == "6").Score,
+                ScoreBatch7 = it.FirstOrDefault(i => i.Batch == "7").Score,
+                ScoreBatch8 = it.Any(i => i.Batch == "8") ? it.FirstOrDefault(i => i.Batch == "8").Score : 0,
+                ScoreBatch9 = it.Any(i => i.Batch == "9") ? it.FirstOrDefault(i => i.Batch == "9").Score : 0,
             }).OrderByDescending(it => it.ScoreBatch6).ToList();
 
             return showScoreParty;
@@ -90,6 +93,9 @@ namespace ElectionCalc.Api.Controllers
                 ScoreBatch4 = it.FirstOrDefault(i => i.Batch == "4").Score,
                 ScoreBatch5 = it.FirstOrDefault(i => i.Batch == "5").Score,
                 ScoreBatch6 = it.FirstOrDefault(i => i.Batch == "6").Score,
+                ScoreBatch7 = it.FirstOrDefault(i => i.Batch == "7").Score,
+                ScoreBatch8 = it.Any(i => i.Batch == "8") ? it.FirstOrDefault(i => i.Batch == "8").Score : 0,
+                ScoreBatch9 = it.Any(i => i.Batch == "9") ? it.FirstOrDefault(i => i.Batch == "9").Score : 0,
             }).OrderByDescending(it => it.ScoreBatch6).ToList();
 
             return showScorePartyRatio;
@@ -166,6 +172,12 @@ namespace ElectionCalc.Api.Controllers
                     dataGroupZone.FirstOrDefault(it => it.Batch == "5").Score : 0;
                     var scoreBatch6 = (dataGroupZone.Any(it => it.Batch == "6")) ?
                     dataGroupZone.FirstOrDefault(it => it.Batch == "6").Score : 0;
+                    var scoreBatch7 = (dataGroupZone.Any(it => it.Batch == "7")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "7").Score : 0;
+                    var scoreBatch8 = (dataGroupZone.Any(it => it.Batch == "8")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "8").Score : 0;
+                    var scoreBatch9 = (dataGroupZone.Any(it => it.Batch == "9")) ?
+                    dataGroupZone.FirstOrDefault(it => it.Batch == "9").Score : 0;
                     listShowScoreArea.Add(new ShowScoreArea
                     {
                         Id = Guid.NewGuid().ToString(),
@@ -177,6 +189,9 @@ namespace ElectionCalc.Api.Controllers
                         ScoreBatch4 = scoreBatch4,
                         ScoreBatch5 = scoreBatch5,
                         ScoreBatch6 = scoreBatch6,
+                        ScoreBatch7 = scoreBatch7,
+                        ScoreBatch8 = scoreBatch8,
+                        ScoreBatch9 = scoreBatch9,
                     });
                 }
             }
