@@ -13,5 +13,8 @@ namespace ElectionCalc.Api.Models
         public double ScoreBatch4 { get; set; }
         public double ScoreBatch5 { get; set; }
         public double ScoreBatch6 { get; set; }
+        public double ScoreBatch7 { get; set; }
+        public double ScoreBatch8 { get; set; }
+        public double ScoreBatch9 { get; set; }
     }
 }

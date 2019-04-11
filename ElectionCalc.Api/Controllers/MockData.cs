@@ -266,6 +266,83 @@ namespace ElectionCalc.Api.Controllers
             ScoreParty.InsertMany(listScoreParty);
         }
 
+        [HttpPost]
+        public void MockDataScorePartyBatch7()
+        {
+            var calc = new Calculate();
+
+            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6"
+            && !(calc.is19Zone(it.Province))).ToList();
+
+            var listScoreBatch7 = listScoreBatch6.GroupBy(it => it.Party).Select(it =>
+                new ScoreParty
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Party = it.Key,
+                    Batch = "7",
+                    Score = it.Sum(i => i.Score)
+                }).ToList();
+
+            ScoreParty.InsertMany(listScoreBatch7);
+        }
+
+        [HttpPost]
+        public void MockDataScorePartyBatch8()
+        {
+            var calc = new Calculate();
+            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6").ToList();
+            var listScoreSouthBatch6 = listScoreBatch6.Where(it => calc.isSouth(it.Province)).ToList();
+
+            var listScoreBatch8 = listScoreSouthBatch6.GroupBy(it => it.Party).Select(it =>
+                new ScoreParty
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Party = it.Key,
+                    Batch = "8",
+                    Score = it.Sum(i => i.Score)
+                }).ToList();
+
+            ScoreParty.InsertMany(listScoreBatch8);
+        }
+
+        [HttpPost]
+        public void MockDataScorePartyBatch9()
+        {
+            var calc = new Calculate();
+
+            var listScoreBatch6 = ScoreElection.Find(it => it.Batch == "6").ToList();
+            var listScoreSouthBatch6 = listScoreBatch6.Where(it => !calc.is19Zone(it.Province) && calc.isSouth(it.Province)).ToList();
+
+            var listScoreBatch9 = listScoreSouthBatch6.GroupBy(it => it.Party).Select(it =>
+                new ScoreParty
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Party = it.Key,
+                    Batch = "9",
+                    Score = it.Sum(i => i.Score)
+                }).ToList();
+
+            ScoreParty.InsertMany(listScoreBatch9);
+        }
+
+        [HttpPost]
+        public void MockDataScoreAreaBatch9()
+        {
+            var listScoreBatch6 = ScoreArea.Find(it => it.Batch == "6").ToList();
+            var calc = new Calculate();
+
+            var listScoreBatch8 = listScoreBatch6.Select(it => new ScoreArea
+            {
+                Id = Guid.NewGuid().ToString(),
+                Province = it.Province,
+                Zone = it.Zone,
+                Batch = "9",
+                Score = calc.isSouth(it.Province) && !calc.is19Zone(it.Province) ? it.Score : 0,
+            }).ToList();
+
+            ScoreArea.InsertMany(listScoreBatch8);
+        }
+
         #endregion
 
         [HttpPost]
