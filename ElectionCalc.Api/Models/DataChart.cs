@@ -5,6 +5,7 @@ namespace ElectionCalc.Api.Models
 {
     public class DataChart
     {
+        public List<string> Labels { get; set; }
         public List<DataSet> Datasets { get; set; }
     }
 
