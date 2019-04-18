@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
+using System.Text;
 using System.Threading.Tasks;
 using ElectionCalc.Api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -261,6 +262,56 @@ namespace ElectionCalc.Api.Controllers
         public List<ScoreElectionV3> GetScoreElectionV3()
         {
             return ScoreElectionV3.Find(it => true).ToList();
+        }
+
+        [HttpGet("{party}")]
+        public DataChart GetDataChart(string party)
+        {
+            var scoreArea = ScoreAreaV2.Find(it => true).ToList();
+            var datasets = new List<DataSet>();
+
+            if (party == "ทั้งหมด")
+            {
+                var dataAll = scoreArea.GroupBy(it => it.Region).Select(it => new DataSet
+                {
+                    Label = it.Key,
+                    Data = it.Select(i => new Data { X = Convert.ToDouble(i.NoArea), Y = i.PercentScore }).ToList(),
+                }).ToList();
+                datasets.AddRange(dataAll);
+            }
+            else
+            {
+                var dataPartyWin = new DataSet
+                {
+                    Label = party,
+                    Data = scoreArea.Where(it => it.PartyWin == party).Select(it => new Data
+                    {
+                        X = Convert.ToDouble(it.NoArea),
+                        Y = it.PercentScore
+                    }).ToList()
+                };
+                var dataOthers = new DataSet
+                {
+                    Label = "อื่นๆ",
+                    Data = scoreArea.Where(it => it.PartyWin != party).Select(it => new Data
+                    {
+                        X = Convert.ToDouble(it.NoArea),
+                        Y = it.PercentScore
+                    }).ToList()
+                };
+                datasets.Add(dataPartyWin);
+                datasets.Add(dataOthers);
+            }
+
+            var color = new List<string> { "#f53d3d", "#bdc3c7", "#ffce00", "#9b59b6", "#1abc9c", "#f39c12", "#3498db" };
+            for (int i = 0; i < datasets.Count; i++)
+            {
+                datasets[i].BackgroundColor = color[i];
+            }
+
+            var dataChart = new DataChart { Datasets = datasets };
+
+            return dataChart;
         }
     }
 }
