@@ -21,6 +21,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreParty> ScorePartyRatio { get; set; }
         IMongoCollection<DataCountVoter> CountVoter { get; set; }
         IMongoCollection<ScoreElectionV2> ScoreElectionV2 { get; set; }
+        IMongoCollection<ScoreAreaV2> ScoreAreaV2 { get; set; }
 
         public MockDataController()
         {
@@ -37,6 +38,7 @@ namespace ElectionCalc.Api.Controllers
             ScorePartyRatio = database.GetCollection<ScoreParty>("ScorePartyRatio");
             CountVoter = database.GetCollection<DataCountVoter>("CountVoter");
             ScoreElectionV2 = database.GetCollection<ScoreElectionV2>("ScoreElectionV2");
+            ScoreAreaV2 = database.GetCollection<ScoreAreaV2>("ScoreAreaV2");
         }
 
         #region 
@@ -416,6 +418,7 @@ namespace ElectionCalc.Api.Controllers
             var dataElection = ScoreElection.Find(it => it.Batch == "6").ToList();
             var listGroupByProvince = dataElection.GroupBy(it => it.Province).ToList();
             var listLateScoreElection2 = new List<ScoreElectionV2>();
+            var cal = new Calculate();
             foreach (var dataGroupProvince in listGroupByProvince)
             {
                 var dataGroupByZone = dataGroupProvince.GroupBy(it => it.Zone).ToList();
@@ -431,7 +434,8 @@ namespace ElectionCalc.Api.Controllers
                         FirstName = it.FirstName,
                         LastName = it.LastName,
                         Score = it.Score,
-                        PercentScore = it.Score * 100.0 / totalScoreZone
+                        PercentScore = it.Score * 100.0 / totalScoreZone,
+                        Region = cal.setRegion(it.Province)
                     }).ToList();
                     listLateScoreElection2.AddRange(listLateScoreElection);
                 }
@@ -449,6 +453,109 @@ namespace ElectionCalc.Api.Controllers
         public List<ScoreElectionV2> GetScoreElectionV2()
         {
             return ScoreElectionV2.Find(it => true).ToList();
+        }
+
+        [HttpDelete]
+        public void DeleteScoreElectionV2()
+        {
+            ScoreElectionV2.DeleteMany(it => true);
+        }
+
+        [HttpPost]
+        public void MockDataScoreAreaV2()
+        {
+            var dataScoreElectionV2 = ScoreElectionV2.Find(it => true).ToList();
+            var readerCsv = new ReaderCsv();
+            var dataAuthority = readerCsv.GetDataAuthority();
+            var listScoreAreaV2 = new List<ScoreAreaV2>();
+            foreach (var dataGroupProvince in dataScoreElectionV2.GroupBy(it => it.Province))
+            {
+                foreach (var dataGroupZone in dataGroupProvince.GroupBy(it => it.Zone))
+                {
+                    var totalScore = dataGroupZone.Sum(it => it.Score);
+                    var totalCountAuthority = dataAuthority.FirstOrDefault(it => it.Province == dataGroupProvince.Key
+                     && it.Zone == dataGroupZone.Key).Score;
+                    var percent = totalScore * 100.0 / totalCountAuthority;
+                    var getWinner = dataGroupZone.FirstOrDefault(it => it.Score == dataGroupZone.Max(i => i.Score)).Party;
+                    listScoreAreaV2.Add(new ScoreAreaV2
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataGroupProvince.Key,
+                        Zone = dataGroupZone.Key,
+                        Score = totalScore,
+                        CountAuthority = totalCountAuthority,
+                        PercentScore = percent,
+                        PartyWin = getWinner,
+                        Region = dataGroupZone.FirstOrDefault().Region
+                    });
+                }
+            }
+            ScoreAreaV2.InsertMany(listScoreAreaV2);
+        }
+
+        [HttpGet]
+        public List<ScoreAreaV2> GetScoreAreaV2()
+        {
+            return ScoreAreaV2.Find(it => true).ToList();
+        }
+
+        [HttpGet]
+        public int GetCountScoreAreaV2()
+        {
+            return ScoreAreaV2.Find(it => true).ToList().Count;
+        }
+
+        [HttpDelete]
+        public void DeleteScoreAreaV2()
+        {
+            ScoreAreaV2.DeleteMany(it => true);
+        }
+
+        [HttpPost]
+        public void WriteDataScoreAreaV2()
+        {
+            //var filePath = @"DataScoreAreaV2.csv";
+            var count = 0;
+            var dataScoreAreaV2 = ScoreAreaV2.Find(it => true).ToList();
+            var listDataScoreAreaWithOutSouth = dataScoreAreaV2.Where(it => it.Region != "South").ToList();
+            var listDataScoreArea2WithSouth1 = dataScoreAreaV2.Where(it => it.Region == "South").ToList()
+            .Where(it => it.Province != "ตรัง" && it.Province != "นราธิวาส" && it.Province != "ปัตตานี"
+            && it.Province != "พัทลุง" && it.Province != "ยะลา" && it.Province != "สตูล").ToList();
+            var listDataScoreArea2WithSouth2 = dataScoreAreaV2.Where(it => it.Region == "South").ToList()
+            .Where(it => it.Province == "ตรัง" || it.Province == "นราธิวาส" || it.Province == "ปัตตานี"
+            || it.Province == "พัทลุง" || it.Province == "ยะลา" || it.Province == "สตูล").ToList();
+            var listSortData = new List<ScoreAreaV2>();
+            foreach (var dataScoreArea in listDataScoreAreaWithOutSouth.GroupBy(it => it.Region).ToList().OrderBy(it => it.Key))
+            {
+                foreach (var data in dataScoreArea)
+                {
+                    count += 1;
+                    data.NoArea = count.ToString();
+                    listSortData.Add(data);
+                }
+            }
+            foreach (var dataScoreArea in listDataScoreArea2WithSouth1)
+            {
+                count += 1;
+                dataScoreArea.NoArea = count.ToString();
+                listSortData.Add(dataScoreArea);
+            }
+            foreach (var dataScoreArea in listDataScoreArea2WithSouth2)
+            {
+                count += 1;
+                dataScoreArea.NoArea = count.ToString();
+                listSortData.Add(dataScoreArea);
+            }
+
+            ScoreAreaV2.DeleteMany(it => true);
+            ScoreAreaV2.InsertMany(listSortData);
+
+            // using (var textWriter = new StreamWriter(filePath))
+            // {
+            //     var writer = new CsvWriter(textWriter);
+            //     writer.Configuration.Delimiter = ",";
+            //     writer.WriteRecords(listSortData);
+            // }
         }
     }
 }
