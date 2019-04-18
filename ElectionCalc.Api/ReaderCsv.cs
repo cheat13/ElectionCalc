@@ -101,4 +101,31 @@ public class ReaderCsv
         return listCountVoter;
     }
 
+    public List<CountAuthority> GetDataAuthority()
+    {
+        var filePath = @"authority.csv";
+        var listDataAuthority = new List<CountAuthority>();
+        using (var reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                var readFromCSV = reader.ReadLine();
+                var listDataLine = readFromCSV.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                foreach (var dataLine in listDataLine)
+                {
+                    var dataAuthority = dataLine.Split(',').ToList();
+                    Int32.TryParse(dataAuthority[2], out Int32 CountAuthority);
+                    listDataAuthority.Add(new CountAuthority
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataAuthority[0],
+                        Zone = dataAuthority[1],
+                        Score = CountAuthority
+                    });
+                }
+            }
+        }
+        return listDataAuthority;
+    }
+
 }

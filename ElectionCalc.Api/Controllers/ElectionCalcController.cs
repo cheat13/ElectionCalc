@@ -17,6 +17,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreArea> ScoreArea { get; set; }
         IMongoCollection<ScoreParty> ScoreParty { get; set; }
         IMongoCollection<ScoreParty> ScorePartyRatio { get; set; }
+        IMongoCollection<ScoreElectionV2> ScoreElectionV2 { get; set; }
 
         public ElectionCalcController()
         {
@@ -31,6 +32,7 @@ namespace ElectionCalc.Api.Controllers
             ScoreArea = database.GetCollection<ScoreArea>("ScoreArea");
             ScoreParty = database.GetCollection<ScoreParty>("ScoreParty");
             ScorePartyRatio = database.GetCollection<ScoreParty>("ScorePartyRatio");
+            ScoreElectionV2 = database.GetCollection<ScoreElectionV2>("ScoreElectionV2");
         }
 
         [HttpGet]
@@ -237,5 +239,14 @@ namespace ElectionCalc.Api.Controllers
             var dataScoreAreaBatch = ScoreArea.Find(it => it.Batch == batch).ToList();
             return dataScoreAreaBatch;
         }
+
+        [HttpGet]
+        public List<ScoreElectionV2> GetScoreElectionV2()
+        {
+            var dataScoreElectionV2 = ScoreElectionV2.Find(it => true).ToList();
+            return dataScoreElectionV2;
+        }
+
+        
     }
 }
