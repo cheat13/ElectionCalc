@@ -22,6 +22,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<DataCountVoter> CountVoter { get; set; }
         IMongoCollection<ScoreElectionV2> ScoreElectionV2 { get; set; }
         IMongoCollection<ScoreAreaV2> ScoreAreaV2 { get; set; }
+        IMongoCollection<ScoreElectionV3> ScoreElectionV3 { get; set; }
 
         public MockDataController()
         {
@@ -39,6 +40,7 @@ namespace ElectionCalc.Api.Controllers
             CountVoter = database.GetCollection<DataCountVoter>("CountVoter");
             ScoreElectionV2 = database.GetCollection<ScoreElectionV2>("ScoreElectionV2");
             ScoreAreaV2 = database.GetCollection<ScoreAreaV2>("ScoreAreaV2");
+            ScoreElectionV3 = database.GetCollection<ScoreElectionV3>("ScoreElectionV3");
         }
 
         #region 
@@ -556,6 +558,108 @@ namespace ElectionCalc.Api.Controllers
             //     writer.Configuration.Delimiter = ",";
             //     writer.WriteRecords(listSortData);
             // }
+        }
+
+        [HttpGet]
+        public List<ScoreElectionV3> GetScoreElectionV3()
+        {
+            return ScoreElectionV3.Find(it => true).ToList();
+        }
+        
+        [HttpGet]
+        public int CountScoreElectionV3()
+        {
+            return ScoreElectionV3.Find(it => true).ToList().Count;
+        }
+
+        [HttpPost]
+        public void MockScoreElectionV3()
+        {
+            var listScoreElectionV3 = new List<ScoreElectionV3>();
+            var count = 0;
+            var dataScoreElectionV2 = ScoreElectionV2.Find(it => true).ToList();
+            var dataScoreElectionV2WithOutSouth = dataScoreElectionV2.Where(it => it.Region != "South").ToList();
+            var dataScoreElectionV2WithSouth1 = dataScoreElectionV2.Where(it => it.Region == "South"
+            && it.Province != "ตรัง" && it.Province != "นราธิวาส" && it.Province != "ปัตตานี"
+            && it.Province != "พัทลุง" && it.Province != "ยะลา" && it.Province != "สตูล").ToList();
+            var dataScoreElectionV2WithSouth2 = dataScoreElectionV2.Where(it => it.Region == "South"
+            && it.Province == "ตรัง" || it.Province == "นราธิวาส" || it.Province == "ปัตตานี"
+            || it.Province == "พัทลุง" || it.Province == "ยะลา" || it.Province == "สตูล").ToList();
+            foreach (var dataScoreArea in dataScoreElectionV2WithOutSouth.GroupBy(it => it.Region).ToList().OrderBy(it => it.Key))
+            {
+                foreach (var dataGroupProvince in dataScoreArea.GroupBy(it => it.Province).ToList())
+                {
+                    foreach (var dataGroupZone in dataGroupProvince.GroupBy(it => it.Zone).ToList())
+                    {
+                        count += 1;
+                        var listData = dataGroupZone.Select(it => new ScoreElectionV3
+                        {
+                            Id = it.Id,
+                            Province = it.Province,
+                            Zone = it.Zone,
+                            NoArea = count.ToString(),
+                            Party = it.Party,
+                            FirstName = it.FirstName,
+                            LastName = it.LastName,
+                            Score = it.Score,
+                            PercentScore = it.PercentScore,
+                            Region = it.Region,
+                        }).ToList();
+                        listScoreElectionV3.AddRange(listData);
+                    }
+                }
+            }
+
+            foreach (var dataScoreArea in dataScoreElectionV2WithSouth1.GroupBy(it => it.Region).ToList().OrderBy(it => it.Key))
+            {
+                foreach (var dataGroupProvince in dataScoreArea.GroupBy(it => it.Province).ToList())
+                {
+                    foreach (var dataGroupZone in dataGroupProvince.GroupBy(it => it.Zone).ToList())
+                    {
+                        count += 1;
+                        var listData = dataGroupZone.Select(it => new ScoreElectionV3
+                        {
+                            Id = it.Id,
+                            Province = it.Province,
+                            Zone = it.Zone,
+                            NoArea = count.ToString(),
+                            Party = it.Party,
+                            FirstName = it.FirstName,
+                            LastName = it.LastName,
+                            Score = it.Score,
+                            PercentScore = it.PercentScore,
+                            Region = it.Region,
+                        }).ToList();
+                        listScoreElectionV3.AddRange(listData);
+                    }
+                }
+            }
+
+            foreach (var dataScoreArea in dataScoreElectionV2WithSouth2.GroupBy(it => it.Region).ToList().OrderBy(it => it.Key))
+            {
+                foreach (var dataGroupProvince in dataScoreArea.GroupBy(it => it.Province).ToList())
+                {
+                    foreach (var dataGroupZone in dataGroupProvince.GroupBy(it => it.Zone).ToList())
+                    {
+                        count += 1;
+                        var listData = dataGroupZone.Select(it => new ScoreElectionV3
+                        {
+                            Id = it.Id,
+                            Province = it.Province,
+                            Zone = it.Zone,
+                            NoArea = count.ToString(),
+                            Party = it.Party,
+                            FirstName = it.FirstName,
+                            LastName = it.LastName,
+                            Score = it.Score,
+                            PercentScore = it.PercentScore,
+                            Region = it.Region,
+                        }).ToList();
+                        listScoreElectionV3.AddRange(listData);
+                    }
+                }
+            }
+            ScoreElectionV3.InsertMany(listScoreElectionV3);
         }
     }
 }
