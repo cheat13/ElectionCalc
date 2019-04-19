@@ -60,6 +60,18 @@ namespace ElectionCalc.Api
                   || province == "สงขลา";
         }
 
+        public bool isSouth2(string province)
+        {
+            return province == "นครศรีธรรมราช"
+                  || province == "กระบี่"
+                  || province == "พังงา"
+                  || province == "ภูเก็ต"
+                  || province == "สุราษฎร์ธานี"
+                  || province == "ระนอง"
+                  || province == "ชุมพร"
+                  || province == "สงขลา";
+        }
+
         public bool isNorth(string province)
         {
             return province == "เชียงราย" || province == "เชียงใหม่" || province == "น่าน"
@@ -133,9 +145,13 @@ namespace ElectionCalc.Api
             {
                 return "North";
             }
-            if (isSouth(province))
+            if (isSouth2(province))
             {
                 return "South";
+            }
+            if (is19Zone(province))
+            {
+                return "South19Zone";
             }
             if (isNorthEast(province))
             {
