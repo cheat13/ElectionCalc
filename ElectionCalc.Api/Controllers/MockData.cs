@@ -519,13 +519,9 @@ namespace ElectionCalc.Api.Controllers
             //var filePath = @"DataScoreAreaV2.csv";
             var count = 0;
             var dataScoreAreaV2 = ScoreAreaV2.Find(it => true).ToList();
-            var listDataScoreAreaWithOutSouth = dataScoreAreaV2.Where(it => it.Region != "South").ToList();
-            var listDataScoreArea2WithSouth1 = dataScoreAreaV2.Where(it => it.Region == "South").ToList()
-            .Where(it => it.Province != "ตรัง" && it.Province != "นราธิวาส" && it.Province != "ปัตตานี"
-            && it.Province != "พัทลุง" && it.Province != "ยะลา" && it.Province != "สตูล").ToList();
-            var listDataScoreArea2WithSouth2 = dataScoreAreaV2.Where(it => it.Region == "South").ToList()
-            .Where(it => it.Province == "ตรัง" || it.Province == "นราธิวาส" || it.Province == "ปัตตานี"
-            || it.Province == "พัทลุง" || it.Province == "ยะลา" || it.Province == "สตูล").ToList();
+            var listDataScoreAreaWithOutSouth = dataScoreAreaV2.Where(it => it.Region != "South" && it.Region != "South19Zone").ToList();
+            var listDataScoreArea2WithSouth1 = dataScoreAreaV2.Where(it => it.Region == "South").ToList();
+            var listDataScoreArea2WithSouth2 = dataScoreAreaV2.Where(it => it.Region == "South19Zone").ToList();
             var listSortData = new List<ScoreAreaV2>();
             foreach (var dataScoreArea in listDataScoreAreaWithOutSouth.GroupBy(it => it.Region).ToList().OrderBy(it => it.Key))
             {
@@ -565,7 +561,7 @@ namespace ElectionCalc.Api.Controllers
         {
             return ScoreElectionV3.Find(it => true).ToList();
         }
-        
+
         [HttpGet]
         public int CountScoreElectionV3()
         {
@@ -578,13 +574,9 @@ namespace ElectionCalc.Api.Controllers
             var listScoreElectionV3 = new List<ScoreElectionV3>();
             var count = 0;
             var dataScoreElectionV2 = ScoreElectionV2.Find(it => true).ToList();
-            var dataScoreElectionV2WithOutSouth = dataScoreElectionV2.Where(it => it.Region != "South").ToList();
-            var dataScoreElectionV2WithSouth1 = dataScoreElectionV2.Where(it => it.Region == "South"
-            && it.Province != "ตรัง" && it.Province != "นราธิวาส" && it.Province != "ปัตตานี"
-            && it.Province != "พัทลุง" && it.Province != "ยะลา" && it.Province != "สตูล").ToList();
-            var dataScoreElectionV2WithSouth2 = dataScoreElectionV2.Where(it => it.Region == "South"
-            && it.Province == "ตรัง" || it.Province == "นราธิวาส" || it.Province == "ปัตตานี"
-            || it.Province == "พัทลุง" || it.Province == "ยะลา" || it.Province == "สตูล").ToList();
+            var dataScoreElectionV2WithOutSouth = dataScoreElectionV2.Where(it => it.Region != "South" && it.Region != "South19Zone").ToList();
+            var dataScoreElectionV2WithSouth1 = dataScoreElectionV2.Where(it => it.Region == "South").ToList();
+            var dataScoreElectionV2WithSouth2 = dataScoreElectionV2.Where(it => it.Region == "South19Zone").ToList();
             foreach (var dataScoreArea in dataScoreElectionV2WithOutSouth.GroupBy(it => it.Region).ToList().OrderBy(it => it.Key))
             {
                 foreach (var dataGroupProvince in dataScoreArea.GroupBy(it => it.Province).ToList())
@@ -660,6 +652,12 @@ namespace ElectionCalc.Api.Controllers
                 }
             }
             ScoreElectionV3.InsertMany(listScoreElectionV3);
+        }
+
+        [HttpDelete]
+        public void DeleteScoreElectionV3()
+        {
+            ScoreElectionV3.DeleteMany(it => true);
         }
     }
 }
