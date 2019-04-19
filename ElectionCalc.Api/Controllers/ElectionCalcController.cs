@@ -264,8 +264,8 @@ namespace ElectionCalc.Api.Controllers
             return ScoreElectionV3.Find(it => true).ToList();
         }
 
-        [HttpGet("{party}")]
-        public DataChart GetDataChart(string party)
+        [HttpGet("{party}/{chart}")]
+        public DataChart GetDataChart(string party, string chart)
         {
             var scoreArea = ScoreAreaV2.Find(it => true).ToList();
             var datasets = new List<DataSet>();
@@ -275,7 +275,11 @@ namespace ElectionCalc.Api.Controllers
                 var dataAll = scoreArea.GroupBy(it => it.Region).Select(it => new DataSet
                 {
                     Label = it.Key,
-                    Data = it.Select(i => new Data { X = Convert.ToDouble(i.NoArea), Y = i.PercentScore }).ToList(),
+                    Data = it.Select(i => new Data
+                    {
+                        X = Convert.ToDouble(i.NoArea),
+                        Y = (chart == "1") ? i.PercentScore : (chart == "3") ? i.CountAuthority : i.Score
+                    }).ToList(),
                 }).ToList();
                 datasets.AddRange(dataAll);
             }
@@ -287,7 +291,7 @@ namespace ElectionCalc.Api.Controllers
                     Data = scoreArea.Where(it => it.PartyWin == party).Select(it => new Data
                     {
                         X = Convert.ToDouble(it.NoArea),
-                        Y = it.PercentScore
+                        Y = (chart == "1") ? it.PercentScore : (chart == "3") ? it.CountAuthority : it.Score
                     }).ToList()
                 };
                 var dataOthers = new DataSet
@@ -296,7 +300,7 @@ namespace ElectionCalc.Api.Controllers
                     Data = scoreArea.Where(it => it.PartyWin != party).Select(it => new Data
                     {
                         X = Convert.ToDouble(it.NoArea),
-                        Y = it.PercentScore
+                        Y = (chart == "1") ? it.PercentScore : (chart == "3") ? it.CountAuthority : it.Score
                     }).ToList()
                 };
                 datasets.Add(dataPartyWin);
