@@ -270,15 +270,6 @@ namespace ElectionCalc.Api.Controllers
             var scoreArea = ScoreAreaV2.Find(it => true).ToList();
             var datasets = new List<DataSet>();
 
-            var labels = new List<string>();
-
-            foreach (var area in scoreArea)
-            {
-                var label = new StringBuilder();
-                label.Append(area.Province).Append(" เขต ").Append(area.Zone);
-                labels.Add(label.ToString());
-            }
-
             if (party == "ทั้งหมด")
             {
                 var dataAll = scoreArea.GroupBy(it => it.Region).Select(it => new DataSet
@@ -312,13 +303,8 @@ namespace ElectionCalc.Api.Controllers
                 datasets.Add(dataOthers);
             }
 
-            var color = new List<string> { "#f53d3d", "#bdc3c7", "#ffce00", "#9b59b6", "#1abc9c", "#f39c12", "#3498db" };
-            for (int i = 0; i < datasets.Count; i++)
-            {
-                datasets[i].BackgroundColor = color[i];
-            }
-
-            var dataChart = new DataChart { Labels = labels, Datasets = datasets };
+            var calc = new Calculate(scoreArea, ref datasets);
+            var dataChart = new DataChart { Labels = calc.Labels, Datasets = datasets };
 
             return dataChart;
         }
@@ -327,32 +313,18 @@ namespace ElectionCalc.Api.Controllers
         public DataChart GetDataPartyChart(string party)
         {
             var scoreElection = ScoreElectionV3.Find(it => true).ToList();
-            var scoreArea = ScoreAreaV2.Find(it => true).ToList();
-            var scoreParty = scoreElection.Where(it => it.Party == party);
             var datasets = new List<DataSet>();
 
-            var labels = new List<string>();
-
-            foreach (var area in scoreArea)
-            {
-                var label = new StringBuilder();
-                label.Append(area.Province).Append(" เขต ").Append(area.Zone);
-                labels.Add(label.ToString());
-            }
-
-            var dataAll = scoreParty.GroupBy(it => it.Region).Select(it => new DataSet
+            var dataAll = scoreElection.Where(it => it.Party == party).GroupBy(it => it.Region).Select(it => new DataSet
             {
                 Label = it.Key,
                 Data = it.Select(i => new Data { X = Convert.ToDouble(i.NoArea), Y = i.PercentScore }).ToList(),
             }).ToList();
             datasets.AddRange(dataAll);
 
-            var color = new List<string> { "#f53d3d", "#bdc3c7", "#ffce00", "#9b59b6", "#1abc9c", "#f39c12", "#3498db" };
-            for (int i = 0; i < datasets.Count; i++)
-            {
-                datasets[i].BackgroundColor = color[i];
-            }
-            var dataPartyChart = new DataChart { Labels = labels, Datasets = datasets };
+            var scoreArea = ScoreAreaV2.Find(it => true).ToList();
+            var calc = new Calculate(scoreArea, ref datasets);
+            var dataPartyChart = new DataChart { Labels = calc.Labels, Datasets = datasets };
 
             return dataPartyChart;
         }

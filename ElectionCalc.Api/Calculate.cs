@@ -1,9 +1,41 @@
+using System.Collections.Generic;
+using System.Text;
 using ElectionCalc.Api.Models;
 
 namespace ElectionCalc.Api
 {
     public class Calculate
     {
+        public List<string> Labels { get; set; }
+        public List<string> Color = new List<string> { "#f53d3d", "#bdc3c7", "#ffce00", "#9b59b6", "#1abc9c", "#f39c12", "#3498db", "#F53D99" };
+
+        public Calculate()
+        {
+
+        }
+
+        public Calculate(List<ScoreAreaV2> scoreArea, ref List<DataSet> datasets)
+        {
+            Labels = new List<string>();
+
+            foreach (var area in scoreArea)
+            {
+                var label = new StringBuilder();
+                label.Append(area.Province).Append(" เขต ").Append(area.Zone);
+                Labels.Add(label.ToString());
+            }
+
+            SetColor(ref datasets);
+        }
+
+        public void SetColor(ref List<DataSet> datasets)
+        {
+            for (int i = 0; i < datasets.Count; i++)
+            {
+                datasets[i].BackgroundColor = Color[i];
+            }
+        }
+
         public double getScoreByBatch(ShowScore party, string batch)
         {
             switch (batch)
@@ -143,5 +175,7 @@ namespace ElectionCalc.Api
             }
             return "";
         }
+
+
     }
 }
