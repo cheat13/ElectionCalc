@@ -23,6 +23,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreElectionV2> ScoreElectionV2 { get; set; }
         IMongoCollection<ScoreAreaV2> ScoreAreaV2 { get; set; }
         IMongoCollection<ScoreElectionV3> ScoreElectionV3 { get; set; }
+        IMongoCollection<ScoreAreaV3> ScoreAreaV3 { get; set; }
 
         public MockDataController()
         {
@@ -41,6 +42,7 @@ namespace ElectionCalc.Api.Controllers
             ScoreElectionV2 = database.GetCollection<ScoreElectionV2>("ScoreElectionV2");
             ScoreAreaV2 = database.GetCollection<ScoreAreaV2>("ScoreAreaV2");
             ScoreElectionV3 = database.GetCollection<ScoreElectionV3>("ScoreElectionV3");
+            ScoreAreaV3 = database.GetCollection<ScoreAreaV3>("ScoreAreaV3");
         }
 
         #region 
@@ -658,6 +660,80 @@ namespace ElectionCalc.Api.Controllers
         public void DeleteScoreElectionV3()
         {
             ScoreElectionV3.DeleteMany(it => true);
+        }
+
+        [HttpPost]
+        public void MockScoreAreaV3()
+        {
+            var dataScoreAreaV2 = ScoreAreaV2.Find(it => true).ToList();
+            var scoreElection24 = ScoreElection.Find(it => it.Batch == "2").ToList();
+            var scoreElection25 = ScoreElection.Find(it => it.Batch == "5").ToList();
+            var listScoreAreaV3 = new List<ScoreAreaV3>();
+            foreach (var data in dataScoreAreaV2)
+            {
+                if (scoreElection24.Any(it => it.Province == data.Province && it.Zone == data.Zone))
+                {
+                    var score24 = scoreElection24.Where(it => it.Province == data.Province && it.Zone == data.Zone)
+                    .Sum(it => it.Score);
+                    var maxScore24 = scoreElection24.Where(it => it.Province == data.Province && it.Zone == data.Zone)
+                    .ToList().Max(it => it.Score);
+                    var partyWin24 = scoreElection24.FirstOrDefault(it => it.Score == maxScore24).Party;
+
+                    var score25 = scoreElection25.Where(it => it.Province == data.Province && it.Zone == data.Zone)
+                    .Sum(it => it.Score);
+                    var maxScore25 = scoreElection25.Where(it => it.Province == data.Province && it.Zone == data.Zone).Max(it => it.Score);
+                    var partyWin25 = scoreElection25.FirstOrDefault(it => it.Score == maxScore25).Party;
+
+                    listScoreAreaV3.Add(new ScoreAreaV3
+                    {
+                        Id = data.Id,
+                        Province = data.Province,
+                        Zone = data.Zone,
+                        NoArea = data.NoArea,
+                        Score = data.Score,
+                        CountAuthority = data.CountAuthority,
+                        PercentScore = data.PercentScore,
+                        PartyWin = data.PartyWin,
+                        Region = data.Region,
+                        Score24 = score24,
+                        Score25 = score25,
+                        PartyWin24 = partyWin24,
+                        PartyWin25 = partyWin25,
+                    });
+                }
+                else
+                {
+                    listScoreAreaV3.Add(new ScoreAreaV3
+                    {
+                        Id = data.Id,
+                        Province = data.Province,
+                        Zone = data.Zone,
+                        NoArea = data.NoArea,
+                        Score = data.Score,
+                        CountAuthority = data.CountAuthority,
+                        PercentScore = data.PercentScore,
+                        PartyWin = data.PartyWin,
+                        Region = data.Region,
+                        Score24 = 0,
+                        Score25 = 0,
+                        PartyWin24 = null,
+                        PartyWin25 = null,
+                    });
+                }
+            }
+            ScoreAreaV3.InsertMany(listScoreAreaV3);
+        }
+
+        [HttpGet]
+        public List<ScoreAreaV3> GetScoreAreaV3()
+        {
+            return ScoreAreaV3.Find(it => true).ToList();
+        }
+
+        [HttpGet]
+        public int CountScoreAreaV3()
+        {
+            return ScoreAreaV3.Find(it => true).ToList().Count;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreElectionV2> ScoreElectionV2 { get; set; }
         IMongoCollection<ScoreAreaV2> ScoreAreaV2 { get; set; }
         IMongoCollection<ScoreElectionV3> ScoreElectionV3 { get; set; }
+        IMongoCollection<ScoreAreaV3> ScoreAreaV3 { get; set; }
 
         public ElectionCalcController()
         {
@@ -38,6 +39,7 @@ namespace ElectionCalc.Api.Controllers
             ScoreElectionV2 = database.GetCollection<ScoreElectionV2>("ScoreElectionV2");
             ScoreAreaV2 = database.GetCollection<ScoreAreaV2>("ScoreAreaV2");
             ScoreElectionV3 = database.GetCollection<ScoreElectionV3>("ScoreElectionV3");
+            ScoreAreaV3 = database.GetCollection<ScoreAreaV3>("ScoreAreaV3");
         }
 
         [HttpGet]
