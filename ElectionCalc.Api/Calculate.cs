@@ -159,35 +159,35 @@ namespace ElectionCalc.Api
         {
             if (isBKK(province))
             {
-                return "Bkk";
+                return "กรุงเทพมหานคร";
             }
             if (isEast(province))
             {
-                return "East";
+                return "ตะวันออก";
             }
             if (isWest(province))
             {
-                return "West";
+                return "ตะวันตก";
             }
             if (isMiddle(province))
             {
-                return "Middle";
+                return "กลาง";
             }
             if (isNorth(province))
             {
-                return "North";
+                return "เหนือ";
             }
             if (isSouth2(province))
             {
-                return "South";
+                return "ใต้";
             }
             if (is19Zone(province))
             {
-                return "South19Zone";
+                return "ใต้(19เขต)";
             }
             if (isNorthEast(province))
             {
-                return "NorthEast";
+                return "ตะวันออกเฉียงเหนือ";
             }
             return "";
         }
