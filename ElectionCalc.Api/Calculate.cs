@@ -14,7 +14,7 @@ namespace ElectionCalc.Api
 
         }
 
-        public Calculate(List<ScoreAreaV2> scoreArea, ref List<DataSet> datasets)
+        public Calculate(List<ScoreAreaV3> scoreArea)
         {
             Labels = new List<string>();
 
@@ -24,8 +24,6 @@ namespace ElectionCalc.Api
                 label.Append(area.Province).Append(" เขต ").Append(area.Zone);
                 Labels.Add(label.ToString());
             }
-
-            SetColor(ref datasets);
         }
 
         public void SetColor(ref List<DataSet> datasets)
@@ -33,6 +31,33 @@ namespace ElectionCalc.Api
             for (int i = 0; i < datasets.Count; i++)
             {
                 datasets[i].BackgroundColor = Color[i];
+            }
+        }
+
+        public double GetDataYAxes(string chart, ScoreAreaV3 area)
+        {
+            switch (chart)
+            {
+                case "1":
+                    return area.PercentScore;
+                case "3":
+                    return area.CountAuthority;
+                case "4":
+                    return area.Score;
+                case "5":
+                    return area.Score25 - area.Score24;
+                case "6":
+                    return area.Score - area.Score25;
+                case "7":
+                    return area.Score - area.Score24;
+                case "8":
+                    return (area.Score25 - area.Score24) * 100.0 / area.Score24;
+                case "9":
+                    return (area.Score - area.Score25) * 100.0 / area.Score25;
+                case "10":
+                    return (area.Score - area.Score24) * 100.0 / area.Score24;
+                default:
+                    return 0;
             }
         }
 

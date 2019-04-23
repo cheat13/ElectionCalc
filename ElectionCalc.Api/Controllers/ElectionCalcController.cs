@@ -269,8 +269,9 @@ namespace ElectionCalc.Api.Controllers
         [HttpGet("{party}/{chart}")]
         public DataChart GetDataChart(string party, string chart)
         {
-            var scoreArea = ScoreAreaV2.Find(it => true).ToList();
+            var scoreArea = ScoreAreaV3.Find(it => true).ToList();
             var datasets = new List<DataSet>();
+            var calc = new Calculate(scoreArea);
 
             if (party == "ทั้งหมด")
             {
@@ -280,7 +281,7 @@ namespace ElectionCalc.Api.Controllers
                     Data = it.Select(i => new Data
                     {
                         X = Convert.ToDouble(i.NoArea),
-                        Y = (chart == "1") ? i.PercentScore : (chart == "3") ? i.CountAuthority : i.Score
+                        Y = calc.GetDataYAxes(chart, i)
                     }).ToList(),
                 }).ToList();
                 datasets.AddRange(dataAll);
@@ -293,7 +294,7 @@ namespace ElectionCalc.Api.Controllers
                     Data = scoreArea.Where(it => it.PartyWin == party).Select(it => new Data
                     {
                         X = Convert.ToDouble(it.NoArea),
-                        Y = (chart == "1") ? it.PercentScore : (chart == "3") ? it.CountAuthority : it.Score
+                        Y = calc.GetDataYAxes(chart, it)
                     }).ToList()
                 };
                 var dataOthers = new DataSet
@@ -302,14 +303,14 @@ namespace ElectionCalc.Api.Controllers
                     Data = scoreArea.Where(it => it.PartyWin != party).Select(it => new Data
                     {
                         X = Convert.ToDouble(it.NoArea),
-                        Y = (chart == "1") ? it.PercentScore : (chart == "3") ? it.CountAuthority : it.Score
+                        Y = calc.GetDataYAxes(chart, it)
                     }).ToList()
                 };
                 datasets.Add(dataPartyWin);
                 datasets.Add(dataOthers);
             }
 
-            var calc = new Calculate(scoreArea, ref datasets);
+            calc.SetColor(ref datasets);
             var dataChart = new DataChart { Labels = calc.Labels, Datasets = datasets };
 
             return dataChart;
@@ -328,8 +329,9 @@ namespace ElectionCalc.Api.Controllers
             }).ToList();
             datasets.AddRange(dataAll);
 
-            var scoreArea = ScoreAreaV2.Find(it => true).ToList();
-            var calc = new Calculate(scoreArea, ref datasets);
+            var scoreArea = ScoreAreaV3.Find(it => true).ToList();
+            var calc = new Calculate(scoreArea);
+            calc.SetColor(ref datasets);
             var dataPartyChart = new DataChart { Labels = calc.Labels, Datasets = datasets };
 
             return dataPartyChart;
