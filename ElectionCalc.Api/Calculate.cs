@@ -159,7 +159,7 @@ namespace ElectionCalc.Api
         {
             if (isBKK(province))
             {
-                return "กรุงเทพมหานคร";
+                return "กทม";
             }
             if (isEast(province))
             {
@@ -187,11 +187,9 @@ namespace ElectionCalc.Api
             }
             if (isNorthEast(province))
             {
-                return "ตะวันออกเฉียงเหนือ";
+                return "อีสาน";
             }
             return "";
         }
-
-
     }
 }
