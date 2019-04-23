@@ -521,12 +521,12 @@ namespace ElectionCalc.Api.Controllers
             //var filePath = @"DataScoreAreaV2.csv";
             var count = 0;
             var dataScoreAreaV2 = ScoreAreaV2.Find(it => true).ToList();
-            var listDataScoreAreaNorthEast = dataScoreAreaV2.Where(it => it.Region == "ตะวันออกเฉียงเหนือ").ToList();
+            var listDataScoreAreaNorthEast = dataScoreAreaV2.Where(it => it.Region == "อีสาน").ToList();
             var listDataScoreAreaNorth = dataScoreAreaV2.Where(it => it.Region == "เหนือ").ToList();
             var listDataScoreAreaEast = dataScoreAreaV2.Where(it => it.Region == "ตะวันออก").ToList();
             var listDataScoreAreaWest = dataScoreAreaV2.Where(it => it.Region == "ตะวันตก").ToList();
             var listDataScoreAreaMid = dataScoreAreaV2.Where(it => it.Region == "กลาง").ToList();
-            var listDataScoreAreaBkk = dataScoreAreaV2.Where(it => it.Region == "กรุงเทพมหานคร").ToList();
+            var listDataScoreAreaBkk = dataScoreAreaV2.Where(it => it.Region == "กทม").ToList();
             var listDataScoreArea2WithSouth = dataScoreAreaV2.Where(it => it.Region == "ใต้").ToList();
             var listDataScoreArea2WithSouth19Zone = dataScoreAreaV2.Where(it => it.Region == "ใต้(19เขต)").ToList();
             var listSortData = new List<ScoreAreaV2>();
@@ -608,12 +608,12 @@ namespace ElectionCalc.Api.Controllers
             var listScoreElectionV3 = new List<ScoreElectionV3>();
             var count = 0;
             var dataScoreElectionV2 = ScoreElectionV2.Find(it => true).ToList();
-            var listDataScoreAreaNorthEast = dataScoreElectionV2.Where(it => it.Region == "ตะวันออกเฉียงเหนือ").ToList();
+            var listDataScoreAreaNorthEast = dataScoreElectionV2.Where(it => it.Region == "อีสาน").ToList();
             var listDataScoreAreaNorth = dataScoreElectionV2.Where(it => it.Region == "เหนือ").ToList();
             var listDataScoreAreaEast = dataScoreElectionV2.Where(it => it.Region == "ตะวันออก").ToList();
             var listDataScoreAreaWest = dataScoreElectionV2.Where(it => it.Region == "ตะวันตก").ToList();
             var listDataScoreAreaMid = dataScoreElectionV2.Where(it => it.Region == "กลาง").ToList();
-            var listDataScoreAreaBkk = dataScoreElectionV2.Where(it => it.Region == "กรุงเทพมหานคร").ToList();
+            var listDataScoreAreaBkk = dataScoreElectionV2.Where(it => it.Region == "กทม").ToList();
             var listDataScoreArea2WithSouth = dataScoreElectionV2.Where(it => it.Region == "ใต้").ToList();
             var listDataScoreArea2WithSouth19Zone = dataScoreElectionV2.Where(it => it.Region == "ใต้(19เขต)").ToList();
 
