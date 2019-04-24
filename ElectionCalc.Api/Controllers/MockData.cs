@@ -24,6 +24,9 @@ namespace ElectionCalc.Api.Controllers
         IMongoCollection<ScoreAreaV2> ScoreAreaV2 { get; set; }
         IMongoCollection<ScoreElectionV3> ScoreElectionV3 { get; set; }
         IMongoCollection<ScoreAreaV3> ScoreAreaV3 { get; set; }
+        IMongoCollection<ScoreElectionV3> ScoreElection48 { get; set; }
+        IMongoCollection<ScoreElectionV3> ScoreElection50 { get; set; }
+        IMongoCollection<ScoreElectionV3> ScoreElection54 { get; set; }
 
         public MockDataController()
         {
@@ -43,6 +46,9 @@ namespace ElectionCalc.Api.Controllers
             ScoreAreaV2 = database.GetCollection<ScoreAreaV2>("ScoreAreaV2");
             ScoreElectionV3 = database.GetCollection<ScoreElectionV3>("ScoreElectionV3");
             ScoreAreaV3 = database.GetCollection<ScoreAreaV3>("ScoreAreaV3");
+            ScoreElection48 = database.GetCollection<ScoreElectionV3>("ScoreElection48");
+            ScoreElection50 = database.GetCollection<ScoreElectionV3>("ScoreElection50");
+            ScoreElection54 = database.GetCollection<ScoreElectionV3>("ScoreElection54");
         }
 
         #region 
@@ -879,6 +885,153 @@ namespace ElectionCalc.Api.Controllers
         public void DeleteScoreV3()
         {
             ScoreAreaV3.DeleteMany(it => true);
+        }
+
+        [HttpPost]
+        public void MockScoreElection48()
+        {
+            var readerCsv = new ReaderCsv();
+            var cal = new Calculate();
+            var dataScore48 = readerCsv.GetScoreElection48();
+            var listScore48 = new List<ScoreElectionV3>();
+            foreach (var data in dataScore48)
+            {
+                listScore48.Add(new ScoreElectionV3
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Province = data.Province,
+                    Zone = data.Zone,
+                    Party = data.Party,
+                    FirstName = data.FirstName,
+                    LastName = data.LastName,
+                    Score = data.Score,
+                    Region = cal.setRegion(data.Province)
+                });
+            }
+            ScoreElection48.InsertMany(listScore48);
+        }
+
+        [HttpGet]
+        public List<ScoreElectionV3> GetScoreElection48()
+        {
+            return ScoreElection48.Find(it => true).ToList();
+        }
+
+        [HttpGet]
+        public int CountScoreElection48()
+        {
+            return ScoreElection48.Find(it => true).ToList().Count;
+        }
+
+        [HttpGet]
+        public int CountScore48()
+        {
+            var readerCsv = new ReaderCsv();
+            return readerCsv.GetScoreElection48().Count;
+        }
+
+        [HttpDelete]
+        public void DeleteScoreElection48()
+        {
+            ScoreElection48.DeleteMany(it => true);
+        }
+
+        [HttpPost]
+        public void MockScoreElection50()
+        {
+            var readerCsv = new ReaderCsv();
+            var cal = new Calculate();
+            var dataScore50 = readerCsv.GetScoreElection50();
+            var listScore50 = new List<ScoreElectionV3>();
+            foreach (var data in dataScore50)
+            {
+                listScore50.Add(new ScoreElectionV3
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Province = data.Province,
+                    Zone = data.Zone,
+                    Party = data.Party,
+                    FirstName = data.FirstName,
+                    LastName = data.LastName,
+                    Score = data.Score,
+                    Region = cal.setRegion(data.Province)
+                });
+            }
+            ScoreElection50.InsertMany(listScore50);
+        }
+
+        [HttpGet]
+        public List<ScoreElectionV3> GetScoreElection50()
+        {
+            return ScoreElection50.Find(it => true).ToList();
+        }
+
+        [HttpGet]
+        public int CountScoreElection50()
+        {
+            return ScoreElection50.Find(it => true).ToList().Count;
+        }
+
+        [HttpGet]
+        public int CountScore50()
+        {
+            var readerCsv = new ReaderCsv();
+            return readerCsv.GetScoreElection50().Count;
+        }
+
+        [HttpDelete]
+        public void DeleteScoreElection50()
+        {
+            ScoreElection50.DeleteMany(it => true);
+        }
+
+        [HttpPost]
+        public void MockScoreElection54()
+        {
+            var readerCsv = new ReaderCsv();
+            var cal = new Calculate();
+            var dataScore54 = readerCsv.GetScoreElection54();
+            var listScore54 = new List<ScoreElectionV3>();
+            foreach (var data in dataScore54)
+            {
+                listScore54.Add(new ScoreElectionV3
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Province = data.Province,
+                    Zone = data.Zone,
+                    Party = data.Party,
+                    FirstName = data.FirstName,
+                    LastName = data.LastName,
+                    Score = data.Score,
+                    Region = cal.setRegion(data.Province)
+                });
+            }
+            ScoreElection54.InsertMany(listScore54);
+        }
+
+        [HttpGet]
+        public List<ScoreElectionV3> GetScoreElection54()
+        {
+            return ScoreElection54.Find(it => true).ToList();
+        }
+
+        [HttpGet]
+        public int CountScoreElection54()
+        {
+            return ScoreElection54.Find(it => true).ToList().Count;
+        }
+
+        [HttpGet]
+        public int CountScore54()
+        {
+            var readerCsv = new ReaderCsv();
+            return readerCsv.GetScoreElection54().Count;
+        }
+
+        [HttpDelete]
+        public void DeleteScoreElection54()
+        {
+            ScoreElection54.DeleteMany(it => true);
         }
     }
 }

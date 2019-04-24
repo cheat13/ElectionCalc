@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using ElectionCalc.Api.Models;
 
 public class ReaderCsv
@@ -128,4 +129,143 @@ public class ReaderCsv
         return listDataAuthority;
     }
 
+    public List<ScoreElection3Year> GetScoreElection48()
+    {
+        var filePath = @"score48.csv";
+        var listDataScore24 = new List<ScoreElection3Year>();
+        var name = new StringBuilder();
+        using (var reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                var dataFromCsv = reader.ReadLine();
+                var dataFromCsvSplitNewLine = dataFromCsv.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                foreach (var dataLine in dataFromCsvSplitNewLine)
+                {
+                    var dataScoreElection = dataLine.Split(',').ToList();
+                    var listName = dataScoreElection[2].Split().ToList();
+                    var firstName = "";
+                    var lastName = new StringBuilder();
+
+                    for (int i = 0; i < listName.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            firstName = listName[i].Substring(3, listName[i].Length - 3);
+                        }
+                        else if (listName[i] != "")
+                        {
+                            lastName.Append(listName[i]).Append(" ");
+                        }
+                    }
+                    Int32.TryParse(dataScoreElection[5], out Int32 score48);
+                    listDataScore24.Add(new ScoreElection3Year
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataScoreElection[0],
+                        Zone = dataScoreElection[1],
+                        Party = dataScoreElection[4],
+                        FirstName = firstName,
+                        LastName = lastName.ToString(),
+                        Score = score48
+                    });
+                }
+            }
+        }
+        return listDataScore24;
+    }
+
+    public List<ScoreElection3Year> GetScoreElection50()
+    {
+        var filePath = @"score50.csv";
+        var listDataScore50 = new List<ScoreElection3Year>();
+        var name = new StringBuilder();
+        using (var reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                var dataFromCsv = reader.ReadLine();
+                var dataFromCsvSplitNewLine = dataFromCsv.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                foreach (var dataLine in dataFromCsvSplitNewLine)
+                {
+                    var dataScoreElection = dataLine.Split(',').ToList();
+                    var listName = dataScoreElection[2].Split().ToList();
+                    var firstName = "";
+                    var lastName = new StringBuilder();
+
+                    for (int i = 0; i < listName.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            firstName = listName[i].Substring(3, listName[i].Length - 3);
+                        }
+                        else if (listName[i] != "")
+                        {
+                            lastName.Append(listName[i]).Append(" ");
+                        }
+                    }
+                    Int32.TryParse(dataScoreElection[5], out Int32 score50);
+                    listDataScore50.Add(new ScoreElection3Year
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataScoreElection[0],
+                        Zone = dataScoreElection[1],
+                        Party = dataScoreElection[4],
+                        FirstName = firstName,
+                        LastName = lastName.ToString(),
+                        Score = score50
+                    });
+                }
+            }
+        }
+        return listDataScore50;
+    }
+
+    public List<ScoreElection3Year> GetScoreElection54()
+    {
+        var filePath = @"score54.csv";
+        var listDataScore54 = new List<ScoreElection3Year>();
+        var name = new StringBuilder();
+        using (var reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                var dataFromCsv = reader.ReadLine();
+                var dataFromCsvSplitNewLine = dataFromCsv.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                foreach (var dataLine in dataFromCsvSplitNewLine)
+                {
+                    var dataScoreElection = dataLine.Split(',').ToList();
+                    var listName = dataScoreElection[2].Split().ToList();
+                    var firstName = "";
+                    var lastName = new StringBuilder();
+
+                    for (int i = 0; i < listName.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            firstName = listName[i].Substring(3, listName[i].Length - 3);
+                        }
+                        else if (listName[i] != "")
+                        {
+                            lastName.Append(listName[i]).Append(" ");
+                        }
+                    }
+                    Int32.TryParse(dataScoreElection[5], out Int32 score50);
+                    listDataScore54.Add(new ScoreElection3Year
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Province = dataScoreElection[0],
+                        Zone = dataScoreElection[1],
+                        Party = dataScoreElection[4],
+                        FirstName = firstName,
+                        LastName = lastName.ToString(),
+                        Score = score50
+                    });
+                }
+            }
+        }
+        return listDataScore54;
+    }
+
 }
+
